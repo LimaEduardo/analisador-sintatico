@@ -120,22 +120,59 @@ class analisadorSintatico:
     #                    formalParameters (block | ;)
     #                | type variableDeclarators ; // field
     def memberDecl(self, indice):
-        # if not self.existeToken(indice):
-        #     Error("memberDecl")
-        
-        # # Construtor 
-        # if self.tokens[indice] == tipoToken.Variavel.name:
-        #     if self.existeToken(indice + 1) and self.tokens[indice + 1] == TipoToken.SepAbreParentese.name:
-        #         indice += 1
-        #         indice = self.formalParameters(indice)
-        #         indice = self.block(indice)
-        #         return indice
+        if not self.existeToken(indice):
+            Error("memberDecl")
+            return indice
+       
+        if self.tokens[indice] == tipoToken.Variavel.name:  # CONSTRUTOR
+            if self.existeToken(indice + 1) and self.tokens[indice + 1] == TipoToken.SepAbreParentese.name:
+                indice += 1
+                indice = self.formalParameters(indice)
+                indice = self.block(indice)
+                return indice
 
-        # elif self.tokens[indice] == tipoToken.PCVoid.name:
-        #     indice += 1
-        #     if not self.existeToken(indice):
-        #         Error("Identificador")
-        #         return indice
+        elif self.tokens[indice] == tipoToken.PCVoid.name:
+            indice += 1
+            if not self.existeToken(indice):
+                Error("Identificador")
+                return indice
+
+        else:
+            indice = funcaoType(indice)
+            if not self.existeToken(indice):
+                Error("inesperado")
+                return indice
+            if self.tokens[indice] == TipoToken.Variavel.name: # METHOD
+                if self.existeToken(indice + 1) and self.tokens[indice + 1] != TipoToken.SepAbreParentese.name:
+                    indice += 1
+                    indice = self.formalParameters(indice)
+                    if not self.existeToken(indice):
+                        Error("inesperado")
+                        return indice
+                    if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
+                        indice = self.block(indice)
+                    else:
+                        indice += 1
+                    return indice
+            # FIELD
+            indice = self.variableDeclarators(indice)
+            if not self.existeToken(indice):
+                Error("Identificador")
+                return indice
+            if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
+                Error(self.tokens[indice], TipoToken.SepPontoEVirgula.name, "tokenInesperado")
+            return indice 
+
+        if self.tokens[indice] == TipoToken.Variavel.name: # METHOD no caso do VOID
+            indice = self.formalParameters(indice)
+        if not self.existeToken(indice):
+            Error("inesperado")
+            return indice
+        if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
+            indice = self.block(indice)
+        else:
+            indice += 1
+        return indice
 
     # block ::= { {blockStatement} }
     def block(self, indice):
