@@ -10,7 +10,7 @@ class LeitorDeFluxo:
             self.arquivo = open(nomeArquivo, "r")
             self.fluxoDeTokens = [self.getTipoTokenComVirgula(x.replace('>,','').replace('<','')) for x in self.arquivo.read().split(" ")]
             del self.fluxoDeTokens[-1]
-            print (*self.fluxoDeTokens)
+            #print (*self.fluxoDeTokens)
         else:
             print("Arquivo não existe")
             sys.exit()

@@ -286,7 +286,7 @@ class analisadorSintatico:
         return indice + 1
 
     # formalParameter ::= type <identifier>
-    def formalParameter(self, indice);
+    def formalParameter(self, indice):
         if not self.existeToken(indice):
             Error(TipoToken.PCChar)
             return indice
@@ -330,7 +330,7 @@ class analisadorSintatico:
             return indice
         if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
             Error(self.tokens[indice], TipoToken.SepPontoEVirgula.name, "tokenInesperado")
-            return indice += 1
+            return indice + 1
             
     # variableDeclarators ::= variableDeclarator {, variableDeclarator}
     def variableDeclarators(self, indice):
@@ -437,7 +437,7 @@ class analisadorSintatico:
             indice = self.referenceType(indice + 1)
         elif self.ehUmBasicType(indice):
             indice = self.basicType(indice + 1)
-        else
+        else:
             Error("referenceType, basicType")
         return indice
 
@@ -775,8 +775,8 @@ class analisadorSintatico:
                 return indice
 
             if(self.tokens[indice].tipoToken == TipoToken.SepAbreColchete.name): 
-                if(self.tokens[indice + 1].tipoToken == TipoToken.SepFechaColchete.name) or
-                    (self.tokens[indice + 1].tipoToken == TipoToken.SepFechaChave.name): 
+                if((self.tokens[indice + 1].tipoToken == TipoToken.SepFechaColchete.name) or
+                    (self.tokens[indice + 1].tipoToken == TipoToken.SepFechaChave.name)): 
                     while self.tokens[indice] == TipoToken.SepAbreColchete.name:
                         indice += 1
                         if not self.existeToken(indice):
@@ -877,3 +877,4 @@ class analisadorSintatico:
 
 if __name__ == "__main__":
     analisador = analisadorSintatico()
+    print (analisador)
