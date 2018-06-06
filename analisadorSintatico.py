@@ -678,25 +678,160 @@ class analisadorSintatico:
         if not self.existeToken(indice):
             Error(TipoToken.Variavel)
             return indice
-        if not self.tokens[indice] == TipoToken.SepPonto.name:
-            Error(self.tokens[indice], TipoToken.SepPonto.name, "tokenInesperado")
-        indice = qualifiedIdentifier(indice + 1)
-        if self.tokens[indice] == TipoToken.SepAbreParentese.name:
-            indice = arguments(indice + 1)
-
-
+        if self.tokens[indice] == TipoToken.SepPonto.name:
+            indice = self.qualifiedIdentifier(indice + 1)
+            if self.tokens[indice] == TipoToken.SepAbreParentese.name:
+                indice = arguments(indice + 1)
+            return indice
+        if self.tokens[indice] == TipoToken.SepAbreColchete.name:
+            indice = self.expression(indice + 1)
+            if not self.existeToken(indice):
+                Error(TipoToken.SepAbreColchete.name)
+                return indice
+            if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
+                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                return indice
+        return indice
 
     # primary ::= parExpression | this [arguments] | super (arguments | . <identifier> [arguments])
     #                           | literal | new creator | qualifiedIdentifier [arguments]
-    # def primary(self, indice):
+    def primary(self, indice):
+        if not self.existeToken(indice):
+            Error("Primary")
+            return indice
+
+        if self.tokens[indice] == TipoToken.SepAbreParentese.name:      # parExpression
+            indice = self.parExpression(indice)
+            return indice
+
+        if self.tokens[indice] == TipoToken.PCThis.name:          # This
+            indice += 1
+            if not self.existeToken(indice):
+                return indice
+            if self.tokens[indice] == TipoToken.SepAbreParentese.name:
+                indice = self.arguments(indice)
+                return indice
+            return indice
+
+        if self.tokens[indice] == TipoToken.PCSuper.name:                   # Super
+            indice += 1
+            if not self.existeToken(indice):
+                Error("Primary")
+                return indice
+
+            if self.tokens[indice] == TipoToken.SepAbreParentese.name:
+                indice = self.arguments(indice)
+                return indice
+
+            if self.tokens[indice] == TipoToken.SepPonto.name:
+                indice += 1
+                if not self.tokens[indice] == TipoToken.Variavel.name:
+                    Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+
+                if not self.existeToken(indice):
+                    return indice
+                if self.tokens[indice] == TipoToken.SepAbreParentese.name:
+                    indice = self.arguments(indice)
+                return indice
+
+            return indice + 1
+
+        if(eUmLiteral(indice)):          # literal
+            indice = literal(indice)
+            return indice
+        if(tokens[indice].tipoToken == TipoToken.PCNew):        # New
+            indice = creator(indice + 1)
+            return indice
+        aux = indice
+        indice = self.qualifiedIdentifier(indice)               # senao Qualidifiertify
+        if not self.existeToken(indice):
+            return indice
+
+        if self.tokens[indice] == TipoToken.SepAbreParentese.name:
+            indice = self.arguments(indice)
+        if(aux == indice):
+            indice += 1
+        return indice
 
     # creator ::= (basicType | qualifiedIdentifier) ( arguments 
     #                                               | [ ] {[ ]} [arrayInitializer] 
     #                                               | newArrayDeclarator )
-    # def creator(self, indice):
+    def creator(self, indice):
+        if not self.existeToken(indice):
+            Error(TipoToken.SepAbreColchete.name)
+            return indice
+        if self.ehUmType(indice):
+            if self.ehUmBasicType(indice):
+                indice = self.basicType(indice)
+            else:
+                indice = self.qualifiedIdentifier(indice)
+
+            if not self.existeToken(indice):
+                Error(TipoToken.SepAbreParentese.name)
+                return indice
+
+            if(self.tokens[indice].tipoToken == TipoToken.SepAbreParentese.name): #arguments
+                indice = arguments(indice)
+                return indice
+
+            if(self.tokens[indice].tipoToken == TipoToken.SepAbreColchete.name): 
+                if(self.tokens[indice + 1].tipoToken == TipoToken.SepFechaColchete.name) or
+                    (self.tokens[indice + 1].tipoToken == TipoToken.SepFechaChave.name): 
+                    while self.tokens[indice] == TipoToken.SepAbreColchete.name:
+                        indice += 1
+                        if not self.existeToken(indice):
+                            Error(TipoToken.PCChar)
+                            return indice
+                        if self.tokens[indice] != TipoToken.SepFechaParentese.name:
+                            Error(TipoToken.PCChar)
+                            return indice
+                        indice += 1
+                    if self.tokens[indice].tipoToken == TipoToken.SepFechaChave.name:
+                        indice = self.arrayInitializer(indice)
+                        return indice
+                    if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
+                        Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                        return indice
+                return self.newArrayDeclarator(indice + 1)
+        else:
+            Error("Um type")
+            return indice
+
 
     # newArrayDeclarator ::= [ expression ] {[ expression ]} {[ ]}
-    # def  newArrayDeclarator(self, indice):
+    def newArrayDeclarator(self, indice):
+        if not self.existeToken(indice):
+            Error(TipoToken.SepAbreColchete.name)
+            return indice
+        if not self.tokens[indice] == TipoToken.SepAbreColchete.name:
+            Error(self.tokens[indice], TipoToken.SepAbreColchete.name, "tokenInesperado")
+            return indice 
+        indice = expression(indice + 1)
+        if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
+            Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+            return indice 
+        indice += 1
+        while self.existeToken(indice) and self.tokens[indice] == TipoToken.SepAbreColchete.name:
+            indice = expression(indice + 1)
+            if not self.existeToken(indice):
+                Error(TipoToken.SepFechaColchete.name)
+                return indice
+            if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
+                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                return indice 
+            indice += 1
+
+        while self.existeToken(indice) and self.tokens[indice] == TipoToken.SepAbreColchete.name:
+            indice += 1
+            if not self.existeToken(indice):
+                Error(TipoToken.SepFechaColchete.name)
+                return indice
+            if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
+                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                return indice
+            indice += 1
+
+        return indice
 
     # literal ::= <int_literal> | <char_literal> | <string_literal> | true | false | null
     def literal(self, indice):
@@ -707,8 +842,6 @@ class analisadorSintatico:
         if not self.tokens[indice] in literais:
             return indice
         return indice + 1
-
-
 
     #################### FUNÇÕES AUXILIARES ####################
     def ehUmType(self, indice):
@@ -735,11 +868,12 @@ class analisadorSintatico:
     def ehUmQualifiedIdentifier(self,indice):
         return self.existeToken(indice) and self.tokens[indice] == TipoToken.Variavel.name
 
-
-
-
-
-            
+    def eUmLiteral(self,indice):
+        if((self.tokens[indice] == TipoToken.Int.name) or (self.tokens[indice] == TipoToken.Char.name) or
+           (self.tokens[indice] == TipoToken.String.name) or (self.tokens[indice] == TipoToken.PCTrue.name) or
+           (self.tokens[indice] == TipoToken.PCFalse.name) or (self.tokens[indice] == TipoToken.PCNull.name)):
+            return True
+        return False
 
 if __name__ == "__main__":
     analisador = analisadorSintatico()
