@@ -20,11 +20,11 @@ class analisadorSintatico:
         if self.tokens[indice] == TipoToken.PCPackage.name:
             indice = self.qualifiedIdentifier(indice+1)
             if not self.existeToken(indice):
-                Error(TipoToken.SepPontoEVirgula) # Token Esperado
+                Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name) # Token Esperado
             if self.tokens[indice] == TipoToken.SepPontoEVirgula.name:
                 indice += 1
             else:
-                Error(self.tokens[indice], TipoToken.SepPontoEVirgula, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
         
         if not self.existeToken(indice):
             return indice
@@ -32,11 +32,11 @@ class analisadorSintatico:
         while self.tokens[indice] == TipoToken.PCImport.name:
             indice = self.qualifiedIdentifier(indice+1)
             if not self.existeToken(indice):
-                Error(TipoToken.SepPontoEVirgula) # Token Esperado
+                Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name) # Token Esperado
             if self.tokens[indice] == TipoToken.SepPontoEVirgula.name:
                 indice += 1
             else:
-                Error(self.tokens[indice], TipoToken.SepPontoEVirgula.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
 
         while self.existeToken(indice):
             indice = self.typeDeclaration()
@@ -46,20 +46,20 @@ class analisadorSintatico:
     # qualifiedIdentifier ::= <identifier> {. <identifier>}
     def qualifiedIdentifier(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.Variavel.name) # Token Esperado
             return indice
         if self.tokens[indice] == tipoToken.Variavel.name:
             indice += 1
             while self.tokens[indice] == tipoToken.SepPonto.name:
                 indice += 1
                 if not self.existeToken(indice):
-                    Error(TipoToken.Variavel)
+                    Error.EsperaTokenFimArquivo(TipoToken.Variavel.name) # Token Esperado
                 if self.tokens[indice] == tipoToken.Variavel.name:
                     indice += 1
                 else:
-                    Error(self.tokens[indice], TipoToken.Variavel.name, "tokenInesperado")
+                    Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
         else:
-            Error(self.tokens[indice], TipoToken.Variavel.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
         return indice
 
     # typeDeclaration ::= modifiers classDeclaration
@@ -81,16 +81,16 @@ class analisadorSintatico:
     # classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
     def classDeclaration(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCClass.name)
+            Error.EsperaTokenFimArquivo(TipoToken.PCClass.name) # Token Esperado
             return indice
         if not self.tokens[indice] == TipoToken.PCClass.name:
-            Error(self.tokens[indice], TipoToken.PCClass.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.PCClass.name, self.tokens[indice])
         indice += 1
 
         if not self.existeToken(indice):
-            Error("identificador")
+            Error.EsperaTokenFimArquivo(TipoToken.Variavel.name) # Token Esperado
         if not self.tokens[indice] == TipoToken.Variavel.name:
-            Error(self.tokens[indice], TipoToken.Variavel.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
         indice += 1
 
         if self.tokens[indice] == TipoToken.PCExtends.name:
@@ -98,6 +98,9 @@ class analisadorSintatico:
     
         indice = self.classBody(indice)
         return indice
+
+    ########### REFATORAR ERROS DAQUI PRA BAIXO #######################
+    # Eduardo
 
     # classBody ::= { {modifiers memberDecl} }
     def classBody(self, indice):
