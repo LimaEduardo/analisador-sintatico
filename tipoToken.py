@@ -48,7 +48,8 @@ class TipoToken(Enum):
     SepFechaChave = ("}","separador")
     SepFechaColchete = ("]","separador")
     SepPontoEVirgula = (";","separador")
-
+    SepDoisPontos = (":","separador")       # Nao existe na linguagem, mas tem nas expressoes
+ 
     Int = ("int_literal", "Int")
     Char = ("char_literal", "Char")
     String = ("string_literal", "String")
