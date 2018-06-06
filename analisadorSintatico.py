@@ -39,7 +39,7 @@ class analisadorSintatico:
                 Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
 
         while self.existeToken(indice):
-            indice = self.typeDeclaration()
+            indice = self.typeDeclaration(indice)
 
         return indice
 
@@ -48,13 +48,13 @@ class analisadorSintatico:
         if not self.existeToken(indice):
             Error.EsperaTokenFimArquivo(TipoToken.Variavel.name) # Token Esperado
             return indice
-        if self.tokens[indice] == tipoToken.Variavel.name:
+        if self.tokens[indice] == TipoToken.Variavel.name:
             indice += 1
-            while self.tokens[indice] == tipoToken.SepPonto.name:
+            while self.tokens[indice] == TipoToken.SepPonto.name:
                 indice += 1
                 if not self.existeToken(indice):
                     Error.EsperaTokenFimArquivo(TipoToken.Variavel.name) # Token Esperado
-                if self.tokens[indice] == tipoToken.Variavel.name:
+                if self.tokens[indice] == TipoToken.Variavel.name:
                     indice += 1
                 else:
                     Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
@@ -105,10 +105,10 @@ class analisadorSintatico:
     # classBody ::= { {modifiers memberDecl} }
     def classBody(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.SepAbreChave.name)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreChave.name) # Token Esperado
             return indice
         if not self.tokens[indice] == TipoToken.SepAbreChave.name:
-            Error(self.tokens[indice], TipoToken.SepAbreChave.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepAbreChave.name, self.tokens[indice])
         indice += 1
         while self.tokens[indice] != TipoToken.SepFechaChave.name:
             if not self.existeToken(indice):
@@ -124,33 +124,32 @@ class analisadorSintatico:
     #                | type variableDeclarators ; // field
     def memberDecl(self, indice):
         if not self.existeToken(indice):
-            Error("memberDecl")
+            Error.NaoFoiPossivelLerMaisToken("memberDecl")
             return indice
-       
-        if self.tokens[indice] == tipoToken.Variavel.name:  # CONSTRUTOR
+        if self.tokens[indice] == TipoToken.Variavel.name:  # CONSTRUTOR
             if self.existeToken(indice + 1) and self.tokens[indice + 1] == TipoToken.SepAbreParentese.name:
                 indice += 1
                 indice = self.formalParameters(indice)
                 indice = self.block(indice)
                 return indice
 
-        elif self.tokens[indice] == tipoToken.PCVoid.name:
+        elif self.tokens[indice] == TipoToken.PCVoid.name:
             indice += 1
             if not self.existeToken(indice):
-                Error("Identificador")
+                Error.EsperaTokenFimArquivo(TipoToken.Variavel.name)
                 return indice
 
         else:
-            indice = funcaoType(indice)
-            if not self.existeToken(indice):
-                Error("inesperado")
+            indice = self.funcaoType(indice)
+            if not self.existeToken(indice):                
+                Error.EsperaTokenFimArquivo(TipoToken.Variavel.name)
                 return indice
             if self.tokens[indice] == TipoToken.Variavel.name: # METHOD
                 if self.existeToken(indice + 1) and self.tokens[indice + 1] != TipoToken.SepAbreParentese.name:
                     indice += 1
                     indice = self.formalParameters(indice)
                     if not self.existeToken(indice):
-                        Error("inesperado")
+                        Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
                         return indice
                     if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
                         indice = self.block(indice)
@@ -160,16 +159,16 @@ class analisadorSintatico:
             # FIELD
             indice = self.variableDeclarators(indice)
             if not self.existeToken(indice):
-                Error("Identificador")
+                Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
                 return indice
             if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
-                Error(self.tokens[indice], TipoToken.SepPontoEVirgula.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
             return indice 
 
         if self.tokens[indice] == TipoToken.Variavel.name: # METHOD no caso do VOID
             indice = self.formalParameters(indice)
         if not self.existeToken(indice):
-            Error("inesperado")
+            Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
             return indice
         if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
             indice = self.block(indice)
@@ -180,14 +179,14 @@ class analisadorSintatico:
     # block ::= { {blockStatement} }
     def block(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.SepAbreChave)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreChave.name)
             return indice
-        if not self.token[indice] == TipoToken.SepAbreChave.name:
-            Error(self.tokens[indice], TipoToken.SepAbreChave.name, "tokenInesperado")
+        if not self.tokens[indice] == TipoToken.SepAbreChave.name:
+            Error.RecebeuTokenInesperado(TipoToken.SepAbreChave.name, self.tokens[indice])
         indice += 1
-        while self.token[indice] != TipoToken.SepFechaChave.name:
+        while self.tokens[indice] != TipoToken.SepFechaChave.name:
             if not self.existeToken(indice):
-                Error(TipoToken.SepAbreChave)
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreChave.name)
                 return indice
             indice = self.blockStatement(indice)
         return indice + 1
@@ -195,9 +194,9 @@ class analisadorSintatico:
     # blockStatement ::= localVariableDeclarationStatement | statement
     def blockStatement(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.Variavel.name)
             return indice
-        if ehUmType: 
+        if self.ehUmType: 
             indice = self.localVariableDeclarationStatement(indice)
         else:
             indice = self.statement(indice)
@@ -207,144 +206,144 @@ class analisadorSintatico:
     #               | while parExpression statement  | return [expression] ; | ; | statementExpression ;
     def statement(self, indice):
         if not self.existeToken(indice):
-            Error("statement")
+            Error.NaoFoiPossivelLerMaisToken("statement")
             return indice
 
-        if self.tokens[indice] == tipoToken.SepAbreChave.name:           # block
+        if self.tokens[indice] == TipoToken.SepAbreChave.name:           # block
             indice = self.block(indice)
             return indice
 
-        if self.tokens[indice] == tipoToken.Variavel.name:             # <identifier>
-            if not self.tokens[indice] == tipoToken.SepDoisPontos.name:
-                Error(self.tokens[indice],  tipoToken.SepDoisPontos.name, "tokenInesperado")
+        if self.tokens[indice] == TipoToken.Variavel.name:             # <identifier>
+            if not self.tokens[indice] == TipoToken.SepDoisPontos.name:
+                Error.RecebeuTokenInesperado(TipoToken.SepDoisPontos.name, self.tokens[indice])
                 return indice
             indice += 1
             if not self.existeToken(indice):
-                Error("statement")
+                Error.EsperaTokenFimArquivo(TipoToken.PCIf.name)
                 return indice
             return self.statement(indice)
 
-        if self.tokens[indice] == tipoToken.PCIf.name:                 # if
+        if self.tokens[indice] == TipoToken.PCIf.name:                 # if
             indice = self.parExpression(indice + 1)
             indice = self.statement(indice + 1)
             if not self.existeToken(indice):
-                Error("statement")
+                Error.EsperaTokenFimArquivo(TipoToken.PCElse.name)
                 return indice
 
-            if self.tokens[indice] == tipoToken.PCElse.name:
+            if self.tokens[indice] == TipoToken.PCElse.name:
                 indice = self.statement(indice + 1)
                 if not self.existeToken(indice):
-                    Error("statement")
+                    Error.EsperaTokenFimArquivo(TipoToken.PCElse.name)
                     return indice
 
             return indice
 
-        if self.tokens[indice] == tipoToken.PCWhile.name:              # while
+        if self.tokens[indice] == TipoToken.PCWhile.name:              # while
             indice = self.parExpression(indice + 1)
             indice = self.statement(indice + 1)
             return indice
 
-        if self.tokens[indice] == tipoToken.PCReturn.name:             # return
+        if self.tokens[indice] == TipoToken.PCReturn.name:             # return
             indice += 1
-            if(acabaramOsTokens(tokens, i)):
-                erroEstouro(TipoToken.SepPontoVirgula.name)
+            if not self.existeToken(indice):
+                Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
                 return indice
-            if self.tokens[i].tipoToken != TipoToken.SepPontoVirgula:
+            if self.tokens[indice].TipoToken != TipoToken.SepPontoEVirgula:
                 indice = self.expression(indice)
-                if(acabaramOsTokens(tokens, i)):
-                    erroEstouro(TipoToken.SepPontoVirgula.name)
+                if not self.existeToken(indice):
+                    Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
                     return indice
-                if not self.tokens[indice] == tipoToken.SepPontoEVirgula.name:
-                    Error(self.tokens[indice],  tipoToken.SepPontoEVirgula.name, "tokenInesperado")
+                if not self.tokens[indice] == TipoToken.SepPontoEVirgula.name:
+                    Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
             else:
                 return indice + 1
 
-        if self.tokens[indice] == tipoToken.SepPontoEVirgula.name:     # ;
+        if self.tokens[indice] == TipoToken.SepPontoEVirgula.name:     # ;
             return indice + 1
 
         else:                                                          # statementExpression
-            return statementExpression(indice + 1)
+            return self.statementExpression(indice + 1)
 
     # formalParameters ::= ( [formalParameter {, formalParameter}] )
     def formalParameters(self, indice):
         if not self.existeToken(indice):
-            Error(self.tokens[indice], TipoToken.SepAbreParentese.name, "tokenInesperado")
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
-        if self.tokens[indice] == tipoToken.SepAbreParentese.name:
+        if self.tokens[indice] == TipoToken.SepAbreParentese.name:
             indice = self.formalParameter(indice + 1)
             if not self.existeToken(indice):
-                Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
                 return indice
-            while self.tokens[indice] == tipoToken.SepVirgula.name:
+            while self.tokens[indice] == TipoToken.SepVirgula.name:
                 indice += 1
                 if not self.existeToken(indice):
-                    Error("FormalParameter")
+                    Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                     return indice
                 indice = self.formalParameter(indice)
             if self.tokens[indice] != TipoToken.SepFechaParentese:
-                Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
         return indice + 1
 
     # formalParameter ::= type <identifier>
     def formalParameter(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("Type")
             return indice
         indice = self.funcaoType(indice + 1)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.RecebeuTokenInesperado(TipoToken.Variavel.name)
             return indice
         if self.tokens[indice] != TipoToken.Variavel.name:
-            Error(self.tokens[indice], TipoToken.Variavel.name, "tokenInesperado")
+            Error.EsperaTokenFimArquivo(TipoToken.Variavel.name, self.tokens[indice])
         return indice + 1
 
     # parExpression ::= ( expression )
     def parExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
         if self.tokens[indice] == TipoToken.SepAbreParentese.name:
             indice = self.expression(indice + 1)
             if not self.existeToken(indice):
-                Error(TipoToken.PCChar)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                 return indice
             if self.tokens[indice] != TipoToken.SepFechaParentese.name:
-                Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
                 indice += 1
         else:
-            Error(self.tokens[indice], TipoToken.SepAbreParentese.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
         return indice
 
     # localVariableDeclarationStatement ::= type variableDeclarators ;
     def localVariableDeclarationStatement(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("type")
             return indice
         indice = self.funcaoType(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("variable declarators")
             return indice
         indice = self.variableDeclarators(indice) 
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.SepPontoEVirgula.name)
             return indice
         if self.tokens[indice] != TipoToken.SepPontoEVirgula.name:
-            Error(self.tokens[indice], TipoToken.SepPontoEVirgula.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])            
             return indice + 1
             
     # variableDeclarators ::= variableDeclarator {, variableDeclarator}
     def variableDeclarators(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("variable declarator")
             return indice
         indice = self.variableDeclarator(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.SepVirgula.name)
             return indice
-        while self.tokens[indice] == tipoToken.SepVirgula.name:
+        while self.tokens[indice] == TipoToken.SepVirgula.name:
             indice += 1
             if not self.existeToken(indice):
-                Error("variableDeclarator")
+                Error.NaoFoiPossivelLerMaisToken("variable declarator")
                 return indice
             indice = self.variableDeclarator(indice)
         return indice + 1
@@ -352,18 +351,18 @@ class analisadorSintatico:
     # variableDeclarator ::= <identifier> [= variableInitializer]
     def variableDeclarator(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.Variavel.name)
             return indice
-        if self.tokens[indice] == tipoToken.Variavel.name:
+        if self.tokens[indice] == TipoToken.Variavel.name:
             indice += 1
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.OPIgual.name)
             return indice
 
-        if self.tokens[indice] == tipoToken.OPIgual.name:
+        if self.tokens[indice] == TipoToken.OPIgual.name:
             indice += 1
             if not self.existeToken(indice):
-                Error("variableInitializer")
+                Error.NaoFoiPossivelLerMaisToken("variable declarator")
                 return indice
             indice = self.variableInitializer(indice)
         else:
@@ -372,7 +371,7 @@ class analisadorSintatico:
     # variableInitializer ::= arrayInitializer | expression
     def variableInitializer(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreChave.name)
             return indice
         if self.tokens[indice] == TipoToken.SepAbreChave.name: 
             indice = self.arrayInitializer(indice)
@@ -383,47 +382,47 @@ class analisadorSintatico:
     # arrayInitializer ::= { [variableInitializer {, variableInitializer}] }
     def arrayInitializer(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreChave.name)
             return indice
         if not self.tokens[indice] == TipoToken.SepAbreChave.name:
-           Error(self.tokens[indice], TipoToken.SepAbreChave.name, "tokenInesperado")
-           return indice
+            Error.RecebeuTokenInesperado(TipoToken.SepAbreChave.name, self.tokens[indice])
+            return indice
         indice = self.variableInitializer(indice + 1)
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.SepVirgula.name)
             return indice
         while self.tokens[indice] == TipoToken.SepVirgula.name:
             indice = self.variableInitializer(indice + 1)
             if not self.existeToken(indice):
-                Error(TipoToken.Variavel)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaChave.name)
                 return indice
         if not self.tokens[indice] == TipoToken.SepFechaChave.name:
-           Error(self.tokens[indice], TipoToken.SepFechaChave.name, "tokenInesperado")
-           return indice
+            Error.RecebeuTokenInesperado(TipoToken.SepFechaChave.name, self.tokens[indice])
+            return indice
         indice += 1
         return indice
         
     # arguments ::= ( [expression {, expression}] )
     def arguments(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
         if not self.tokens[indice] == TipoToken.SepAbreParentese.name:
-           Error(self.tokens[indice], TipoToken.SepAbreParentese.name, "tokenInesperado")
-           return indice
+            Error.RecebeuTokenInesperado(TipoToken.SepAbreParentese.name, self.tokens[indice])
+            return indice
         indice += 1
         if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
             indice = self.expression(indice)
             if not self.existeToken(indice):
-                Error(TipoToken.Variavel)
+                Error.EsperaTokenFimArquivo(TipoToken.SepVirgula.name)
                 return indice
             while self.tokens[indice] == TipoToken.SepVirgula.name:
                 indice = self.expression(indice + 1)
                 if not self.existeToken(indice):
-                    Error(TipoToken.Variavel)
+                    Error.EsperaTokenFimArquivo(TipoToken.SepVirgula.name)
                     return indice
         if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
-            Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
             return indice
         indice += 1
         return indice
@@ -431,20 +430,20 @@ class analisadorSintatico:
     # type ::= referenceType | basicType
     def funcaoType(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("'reference type' or 'basic type'")
             return indice
         if self.ehUmReferenceType(indice):
             indice = self.referenceType(indice + 1)
         elif self.ehUmBasicType(indice):
             indice = self.basicType(indice + 1)
         else:
-            Error("referenceType, basicType")
+            Error.NaoFoiPossivelLerMaisToken("'reference type' or 'basic type'")
         return indice
 
     # basicType ::= boolean | char | int
     def basicType(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo([TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name])
             return indice
         tiposBasicos = [TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name]
         if self.tokens[indice] not in tiposBasicos:
@@ -454,43 +453,40 @@ class analisadorSintatico:
     # referenceType ::= basicType [ ] {[ ]} | qualifiedIdentifier {[ ]}
     def referenceType(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("basic type or qualifedIdentifier")
             return indice
 
         if self.ehUmBasicType(indice):
             indice = self.basicType(indice)
             
             if not self.existeToken(indice):
-                Error(TipoToken.PCChar)
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreColchete.name)
                 return indice
 
             if self.tokens[indice] == TipoToken.SepAbreColchete.name:
                 indice += 1
             if not self.existeToken(indice):
-                Error(TipoToken.PCChar)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaColchete.name)
                 return indice
             if self.tokens[indice] == TipoToken.SepFechaColchete.name:
                 indice += 1
-            if not self.existeToken(indice):
-                Error(TipoToken.PCChar)
-                return indice
         elif self.ehUmQualifiedIdentifier(indice):
             indice = self.qualifiedIdentifier(indice)
         else:
-            Error("basicType, qualifiedIdentifier")
+            Error.NaoFoiPossivelLerMaisToken("basicType, qualifiedIdentifier")
             return indice
 
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
 
         while self.tokens[indice] == TipoToken.SepAbreParentese.name:
             indice += 1
             if not self.existeToken(indice):
-                Error(TipoToken.PCChar)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                 return indice
             if self.tokens[indice] != TipoToken.SepFechaParentese.name:
-                Error(TipoToken.PCChar)
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
                 return indice
             indice += 1
 
@@ -499,7 +495,7 @@ class analisadorSintatico:
     # statementExpression ::= expression // but must have side-effect, eg i++
     def statementExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("expression")
             return indice
         indice = self.expression(indice)
         return indice
@@ -507,7 +503,7 @@ class analisadorSintatico:
     # expression ::= assignmentExpression
     def expression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("assignment expression")
             return indice
         indice = self.assignmentExpression(indice)
         return indice
@@ -516,158 +512,158 @@ class analisadorSintatico:
     # assignmentExpression ::= conditionalAndExpression [(= | +=) assignmentExpression]
     def assignmentExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("conditional and expression")
             return indice
-        indice = conditionalAndExpression(indice)
+        indice = self.conditionalAndExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo([TipoToken.OPRecebe.name, TipoToken.OPSomaERecebe.name ])
             return indice
 
-        if self.tokens[indice] == TipoToken.Recebe.name or self.tokens[indice] == TipoToken.OPSomaERecebe.name: 
-            indice = assignmentExpression(indice + 1)
+        if self.tokens[indice] == TipoToken.OPRecebe.name or self.tokens[indice] == TipoToken.OPSomaERecebe.name: 
+            indice = self.assignmentExpression(indice + 1)
 
         return indice
 
     # conditionalAndExpression ::= equalityExpression {&& equalityExpression}
     def conditionalAndExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("equality expression")
             return indice
-        indice = equalityExpression(indice)
+        indice = self.equalityExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.OPAnd.name)
             return indice
 
         while self.tokens[indice] == TipoToken.OPAnd.name:
-            indice = equalityExpression(indice + 1)
+            indice = self.equalityExpression(indice + 1)
 
         return indice
 
     # equalityExpression ::= relationalExpression {== relationalExpression}
     def equalityExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("relational expression")
             return indice
-        indice = relationalExpression(indice)
+        indice = self.relationalExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.PCChar.name)
             return indice
 
         while self.tokens[indice] == TipoToken.OPIgual.name:
-            indice = relationalExpression(indice + 1)
+            indice = self.relationalExpression(indice + 1)
 
         return indice
 
     # relationalExpression ::= additiveExpression [(> | <=) additiveExpression | instanceof referenceType]
     def relationalExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("additive expression")
             return indice
-        indice = additiveExpression(indice)
+        indice = self.additiveExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo([TipoToken.OPMaior.name, TipoToken.OPMenorIgual.name ])
             return indice
 
         if self.tokens[indice] == TipoToken.OPMaior.name or self.tokens[indice] == TipoToken.OPMenorIgual.name: 
-            indice = additiveExpression(indice + 1)
+            indice = self.additiveExpression(indice + 1)
         elif self.tokens[indice] == TipoToken.PCInstanceOf.name:
-            indice = referenceType(indice + 1)
+            indice = self.referenceType(indice + 1)
 
         return indice
 
     # additiveExpression ::= multiplicativeExpression {(+ | -) multiplicativeExpression}
     def additiveExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("multiplicative expression")
             return indice
-        indice = multiplicativeExpression(indice)
+        indice = self.multiplicativeExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo([TipoToken.OPSoma.name, TipoToken.OPMenos.name ])
             return indice
 
         while self.tokens[indice] == TipoToken.OPSoma.name or self.tokens[indice] == TipoToken.OPMenos.name:
-            indice = multiplicativeExpression(indice + 1)
+            indice = self.multiplicativeExpression(indice + 1)
 
         return indice
 
     # multiplicativeExpression ::= unaryExpression {* unaryExpression}
     def  multiplicativeExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.NaoFoiPossivelLerMaisToken("unary expression")
             return indice
-        indice = unaryExpression(indice)
+        indice = self.unaryExpression(indice)
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.OpMultiplica.name)
             return indice
 
         while self.tokens[indice] == TipoToken.OpMultiplica.name:
-            indice = unaryExpression(indice + 1)
+            indice = self.unaryExpression(indice + 1)
 
         return indice
 
     # unaryExpression ::= ++ unaryExpression | - unaryExpression | simpleUnaryExpression
     def  unaryExpression(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.PCChar)
+            Error.EsperaTokenFimArquivo(TipoToken.OPIncrementa.name)
             return indice
 
         if self.tokens[indice] == TipoToken.OPIncrementa.name:
-            indice = simpleUnaryExpression(indice + 1)
+            indice = self.simpleUnaryExpression(indice + 1)
         elif self.tokens[indice] == TipoToken.OPMenos.name:
-            indice = simpleUnaryExpression(indice + 1)
+            indice = self.simpleUnaryExpression(indice + 1)
         else:
-            indice = simpleUnaryExpression(indice)
+            indice = self.simpleUnaryExpression(indice)
 
     # simpleUnaryExpression ::= ! unaryExpression | ( basicType ) unaryExpression 
     #                           | ( referenceType ) simpleUnaryExpression | postfixExpression
     def simpleUnaryExpression(self, indice):
-        if not self.self.existeToken(indice):
-            Error(TipoToken.PCChar)
+        if not self.existeToken(indice):
+            Error.EsperaTokenFimArquivo(TipoToken.OPNao.name)
             return indice
 
         if self.tokens[indice] == TipoToken.OPNao.name:
-            return unaryExpression(indice + 1)
+            return self.unaryExpression(indice + 1)
 
         if self.tokens[indice] == TipoToken.SepAbreParentese.name:
             indice += 1
-            if not self.self.existeToken(indice):
-                Error(TipoToken.PCChar)
+            if not self.existeToken(indice):
+                Error.NaoFoiPossivelLerMaisToken("basic type")
                 return indice
-            if ehUmBasicType(indice) and self.tokens[indice + 1] != TipoToken.SepAbreColchete.name: # ( basicType ) unaryExpression  
+            if self.ehUmBasicType(indice) and self.tokens[indice + 1] != TipoToken.SepAbreColchete.name: # ( basicType ) unaryExpression  
                 indice = self.basicType(indice)
-                if not self.self.existeToken(indice):
-                    Error(TipoToken.PCChar)
+                if not self.existeToken(indice):
+                    Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                     return indice
                 if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
-                    Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+                    Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
                     return indice
                 indice = self.unaryExpression(indice + 1)
             else:
                 indice = self.referenceType(indice)
-                if not self.self.existeToken(indice):
-                    Error(TipoToken.PCChar)
+                if not self.existeToken(indice):
+                    Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                     return indice
                 if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
-                    Error(self.tokens[indice], TipoToken.SepFechaParentese.name, "tokenInesperado")
+                    Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
                     return indice
                 indice = self.simpleUnaryExpression(indice + 1)
             return indice
 
-        return postfixExpression(indice)
+        return self.postfixExpression(indice)
 
     # postfixExpression ::= primary {selector} {--}
     def postfixExpression(self, indice):
-        if not self.self.existeToken(indice):
-            Error(TipoToken.PCChar)
+        if not self.existeToken(indice):
+            Error.NaoFoiPossivelLerMaisToken("primary")
             return indice
-        indice = primary(indice) 
-        if not self.self.existeToken(indice):
-            Error(TipoToken.PCChar)
+        indice = self.primary(indice) 
+        if not self.existeToken(indice):
+            Error.EsperaTokenFimArquivo([TipoToken.SepPonto.name, TipoToken.SepAbreColchete.name])
             return indice
-        while self.tokens[indice] == TipoToken.SepPonto.name or tokens[indice].tipoToken == TipoToken.SepAbreColchete.name:
-            indice = selector(indice)
-        if not self.self.existeToken(indice):
-            Error(TipoToken.PCChar)
+        while self.tokens[indice] == TipoToken.SepPonto.name or self.tokens[indice] == TipoToken.SepAbreColchete.name:
+            indice = self.selector(indice)
+        if not self.existeToken(indice):
+            Error.EsperaTokenFimArquivo(TipoToken.OPDecrementa)
             return indice
         while self.tokens[indice] == TipoToken.OPDecrementa.name:
             indice += 1
@@ -676,20 +672,20 @@ class analisadorSintatico:
     # selector ::= . qualifiedIdentifier [arguments] | [ expression ]
     def selector(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo(TipoToken.SepPonto.name)
             return indice
         if self.tokens[indice] == TipoToken.SepPonto.name:
             indice = self.qualifiedIdentifier(indice + 1)
             if self.tokens[indice] == TipoToken.SepAbreParentese.name:
-                indice = arguments(indice + 1)
+                indice = self.arguments(indice + 1)
             return indice
         if self.tokens[indice] == TipoToken.SepAbreColchete.name:
             indice = self.expression(indice + 1)
             if not self.existeToken(indice):
-                Error(TipoToken.SepAbreColchete.name)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaColchete.name)
                 return indice
             if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
-                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepFechaColchete.name, self.tokens[indice])
                 return indice
         return indice
 
@@ -697,7 +693,7 @@ class analisadorSintatico:
     #                           | literal | new creator | qualifiedIdentifier [arguments]
     def primary(self, indice):
         if not self.existeToken(indice):
-            Error("Primary")
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
 
         if self.tokens[indice] == TipoToken.SepAbreParentese.name:      # parExpression
@@ -716,7 +712,7 @@ class analisadorSintatico:
         if self.tokens[indice] == TipoToken.PCSuper.name:                   # Super
             indice += 1
             if not self.existeToken(indice):
-                Error("Primary")
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
                 return indice
 
             if self.tokens[indice] == TipoToken.SepAbreParentese.name:
@@ -726,8 +722,7 @@ class analisadorSintatico:
             if self.tokens[indice] == TipoToken.SepPonto.name:
                 indice += 1
                 if not self.tokens[indice] == TipoToken.Variavel.name:
-                    Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
-
+                    Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
                 if not self.existeToken(indice):
                     return indice
                 if self.tokens[indice] == TipoToken.SepAbreParentese.name:
@@ -736,11 +731,11 @@ class analisadorSintatico:
 
             return indice + 1
 
-        if(eUmLiteral(indice)):          # literal
-            indice = literal(indice)
+        if(self.eUmLiteral(indice)):          # literal
+            indice = self.literal(indice)
             return indice
-        if(tokens[indice].tipoToken == TipoToken.PCNew):        # New
-            indice = creator(indice + 1)
+        if(self.tokens[indice] == TipoToken.PCNew.name):        # New
+            indice = self.creator(indice + 1)
             return indice
         aux = indice
         indice = self.qualifiedIdentifier(indice)               # senao Qualidifiertify
@@ -758,7 +753,7 @@ class analisadorSintatico:
     #                                               | newArrayDeclarator )
     def creator(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.SepAbreColchete.name)
+            Error.NaoFoiPossivelLerMaisToken("Type")
             return indice
         if self.ehUmType(indice):
             if self.ehUmBasicType(indice):
@@ -767,30 +762,30 @@ class analisadorSintatico:
                 indice = self.qualifiedIdentifier(indice)
 
             if not self.existeToken(indice):
-                Error(TipoToken.SepAbreParentese.name)
+                Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
                 return indice
 
-            if(self.tokens[indice].tipoToken == TipoToken.SepAbreParentese.name): #arguments
-                indice = arguments(indice)
+            if(self.tokens[indice].TipoToken == TipoToken.SepAbreParentese.name): #arguments
+                indice = self.arguments(indice)
                 return indice
 
-            if(self.tokens[indice].tipoToken == TipoToken.SepAbreColchete.name): 
-                if((self.tokens[indice + 1].tipoToken == TipoToken.SepFechaColchete.name) or
-                    (self.tokens[indice + 1].tipoToken == TipoToken.SepFechaChave.name)): 
+            if(self.tokens[indice].TipoToken == TipoToken.SepAbreColchete.name): 
+                if((self.tokens[indice + 1].TipoToken == TipoToken.SepFechaColchete.name) or
+                    (self.tokens[indice + 1].TipoToken == TipoToken.SepFechaChave.name)): 
                     while self.tokens[indice] == TipoToken.SepAbreColchete.name:
                         indice += 1
                         if not self.existeToken(indice):
-                            Error(TipoToken.PCChar)
+                            Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
                             return indice
                         if self.tokens[indice] != TipoToken.SepFechaParentese.name:
-                            Error(TipoToken.PCChar)
+                            Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
                             return indice
                         indice += 1
-                    if self.tokens[indice].tipoToken == TipoToken.SepFechaChave.name:
+                    if self.tokens[indice].TipoToken == TipoToken.SepFechaChave.name:
                         indice = self.arrayInitializer(indice)
                         return indice
                     if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
-                        Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                        Error.RecebeuTokenInesperado(TipoToken.SepFechaColchete.name, self.tokens[indice])
                         return indice
                 return self.newArrayDeclarator(indice + 1)
         else:
@@ -801,33 +796,33 @@ class analisadorSintatico:
     # newArrayDeclarator ::= [ expression ] {[ expression ]} {[ ]}
     def newArrayDeclarator(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.SepAbreColchete.name)
+            Error.EsperaTokenFimArquivo(TipoToken.SepAbreColchete.name)
             return indice
         if not self.tokens[indice] == TipoToken.SepAbreColchete.name:
-            Error(self.tokens[indice], TipoToken.SepAbreColchete.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepAbreColchete.name, self.tokens[indice])
             return indice 
-        indice = expression(indice + 1)
+        indice = self.expression(indice + 1)
         if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
-            Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+            Error.RecebeuTokenInesperado(TipoToken.SepFechaColchete.name, self.tokens[indice])
             return indice 
         indice += 1
         while self.existeToken(indice) and self.tokens[indice] == TipoToken.SepAbreColchete.name:
-            indice = expression(indice + 1)
+            indice = self.expression(indice + 1)
             if not self.existeToken(indice):
-                Error(TipoToken.SepFechaColchete.name)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaColchete.name)
                 return indice
             if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
-                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepFechaColchete.name, self.tokens[indice])
                 return indice 
             indice += 1
 
         while self.existeToken(indice) and self.tokens[indice] == TipoToken.SepAbreColchete.name:
             indice += 1
             if not self.existeToken(indice):
-                Error(TipoToken.SepFechaColchete.name)
+                Error.EsperaTokenFimArquivo(TipoToken.SepFechaColchete.name)
                 return indice
             if not self.tokens[indice] == TipoToken.SepFechaColchete.name:
-                Error(self.tokens[indice], TipoToken.SepFechaColchete.name, "tokenInesperado")
+                Error.RecebeuTokenInesperado(TipoToken.SepFechaColchete.name, self.tokens[indice])
                 return indice
             indice += 1
 
@@ -836,7 +831,7 @@ class analisadorSintatico:
     # literal ::= <int_literal> | <char_literal> | <string_literal> | true | false | null
     def literal(self, indice):
         if not self.existeToken(indice):
-            Error(TipoToken.Variavel)
+            Error.EsperaTokenFimArquivo([TipoToken.Int.name, TipoToken.Char.name, TipoToken.String.name, TipoToken.PCTrue.name, TipoToken.PCFalse.name, TipoToken.PCNull.name])
             return indice
         literais = [TipoToken.Int.name, TipoToken.Char.name, TipoToken.String.name, TipoToken.PCTrue.name, TipoToken.PCFalse.name, TipoToken.PCNull.name]
         if not self.tokens[indice] in literais:
@@ -845,7 +840,7 @@ class analisadorSintatico:
 
     #################### FUNÇÕES AUXILIARES ####################
     def ehUmType(self, indice):
-        return ehUmBasicType(indice) or ehUmReferenceType(indice)
+        return self.ehUmBasicType(indice) or self.ehUmReferenceType(indice)
 
     def ehUmBasicType(self,indice):
         tiposBasicos = [TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name]

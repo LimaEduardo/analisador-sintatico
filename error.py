@@ -1,5 +1,5 @@
 import inspect 
-debug = True
+debug = False
 
 def debugFunction(*args):
     argsExists = False
@@ -40,7 +40,12 @@ class Error:
         debugFunction(args)
         print("Esperava o token: '"+token+"' e recebeu um fim de arquivo")
         endDebugFunction(args)
-
+    
+    @staticmethod
+    def NaoFoiPossivelLerMaisToken(nomefuncao, *args):
+        debugFunction(args)
+        print("Esperavamos um token na função "+nomefuncao+", porém terminou de forma inesperada")
+        endDebugFunction(args)
     
     @staticmethod
     def RecebeuTokenInesperado(tokenEsperado, tokenRecebido, *args):
