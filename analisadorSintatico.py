@@ -176,8 +176,8 @@ class analisadorSintatico:
                 Error.EsperaTokenFimArquivo(self.infoTokens[indice],TipoToken.Variavel.name)
                 return indice
             if self.tokens[indice] == TipoToken.Variavel.name: # FIELD
-                indice += 1
-                if self.existeToken(indice) and self.tokens[indice] != TipoToken.SepAbreParentese.name:
+                aux = indice + 1
+                if self.existeToken(aux) and self.tokens[aux] != TipoToken.SepAbreParentese.name:
                     indice = self.variableDeclarators(indice)
                     if not self.existeToken(indice):
                         Error.EsperaTokenFimArquivo(self.infoTokens[indice],TipoToken.SepPontoEVirgula.name)
@@ -620,7 +620,7 @@ class analisadorSintatico:
             if self.tokens[indice] != TipoToken.SepFechaColchete.name:
                 Error.RecebeuTokenInesperado(self.infoTokens[indice],TipoToken.SepFechaColchete.name, self.tokens[indice])
                 return indice
-        indice += 1
+            indice += 1
         return indice
 
     # statementExpression ::= expression // but must have side-effect, eg i++
