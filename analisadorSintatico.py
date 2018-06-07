@@ -572,7 +572,7 @@ class analisadorSintatico:
         if not self.existeToken(indice):
             Error.NaoFoiPossivelLerMaisToken(self.infoTokens[indice],"'reference type' or 'basic type'")
             return indice
-        if self.ehUmBasicType(indice):=
+        if self.ehUmBasicType(indice):
             if self.existeToken(indice + 1) and self.tokens[indice]  == TipoToken.SepAbreColchete.name:
                 return self.referenceType(indice)
             return self.basicType(indice)
