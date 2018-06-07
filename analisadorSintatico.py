@@ -90,7 +90,7 @@ class analisadorSintatico:
         return indice
  
     # classDeclaration ::= class <identifier> [extends qualifiedIdentifier] classBody
-    def classDeclaration(self, indice):
+    def classDeclaration(self, indice):     #
         if not self.existeToken(indice):
             Error.EsperaTokenFimArquivo(self.infoTokens[indice],TipoToken.PCClass.name) # Token Esperado
             return indice
@@ -129,8 +129,7 @@ class analisadorSintatico:
             return indice
         if not self.tokens[indice] == TipoToken.SepAbreChave.name:
             Error.RecebeuTokenInesperado(self.infoTokens[indice],TipoToken.SepAbreChave.name, self.tokens[indice])
-            indice += 1
-            return indice
+            return indice + 1
         indice += 1
 
         if not self.existeToken(indice):
@@ -140,15 +139,15 @@ class analisadorSintatico:
         while self.existeToken(indice) and self.tokens[indice] != TipoToken.SepFechaChave.name:
             if self.tokens[indice] in modif:
                 indice = self.modifiers(indice)
-                indice = self.memberDecl(indice)
             else:
                 Error.RecebeuTokenInesperado(self.infoTokens[indice],modif, self.tokens[indice])
                 indice += 1
+                continue
+            indice = self.memberDecl(indice)
         if not self.existeToken(indice):
             Error.EsperaTokenFimArquivo(self.infoTokens[indice],TipoToken.SepFechaChave.name) 
             return indice   
-        indice += 1
-        return indice  
+        return indice + 1
 
     # memberDecl ::= <identifier> // constructor
     #                    formalParameters block
