@@ -14,7 +14,7 @@ def geraInfoToken():
         infoToken = []
         for linha in linhas:
             nomeToken = linha[3].strip()
-            linhaToken = linha[1].strip()
+            linhaToken = str(int(linha[1].strip()) + 1)
             colunaToken = linha[2].strip()
             infoToken.append([nomeToken,linhaToken,colunaToken])
         return infoToken
