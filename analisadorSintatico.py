@@ -15,7 +15,7 @@ class analisadorSintatico:
         return i < len(self.tokens)
 
     #compilationUnit::=[package qualifiedIdentifier ;] {import qualifiedIdentifier ;} {typeDeclaration} EOF
-    def compilationUnit(self):
+    def compilationUnit(self):  #
         indice = 0;
         if not self.existeToken(indice):
             return indice
@@ -42,8 +42,6 @@ class analisadorSintatico:
                 return indice
             if self.tokens[indice] == TipoToken.SepPontoEVirgula.name:
                 indice += 1
-                if not self.existeToken(indice):
-                    return indice
             else:
                 Error.RecebeuTokenInesperado(TipoToken.SepPontoEVirgula.name, self.tokens[indice])
 
@@ -55,7 +53,7 @@ class analisadorSintatico:
         Error.EsperaTokenFimArquivo("ao finalizar o arquivo")
 
     # qualifiedIdentifier ::= <identifier> {. <identifier>}
-    def qualifiedIdentifier(self, indice):
+    def qualifiedIdentifier(self, indice):  #
         if not self.existeToken(indice):
             return indice
         while self.existeToken(indice) and self.tokens[indice] == TipoToken.Variavel.name:
@@ -70,19 +68,18 @@ class analisadorSintatico:
             Error.RecebeuTokenInesperado(TipoToken.Variavel.name)
             return indice
         Error.RecebeuTokenInesperado(TipoToken.Variavel.name, self.tokens[indice])
-        indice += 1
-        if not self.existeToken(indice):
+        if not self.existeToken(indice + 1):
             return indice
         return indice
 
     # typeDeclaration ::= modifiers classDeclaration
-    def typeDeclaration(self, indice):
+    def typeDeclaration(self, indice):  #
         indice = self.modifiers(indice)
         indice = self.classDeclaration(indice)
         return indice
 
     # modifiers ::= {public | protected | private | static | abstract}
-    def modifiers(self, indice):
+    def modifiers(self, indice):    #
         modif = [TipoToken.PCPublic.name, TipoToken.PCProtected.name, TipoToken.PCPrivate.name, TipoToken.PCStatic.name, TipoToken.PCAbstract.name]
         if not self.existeToken(indice):
             return indice
@@ -543,7 +540,7 @@ class analisadorSintatico:
         return indice
         
     # arguments ::= ( [expression {, expression}] )
-    def arguments(self, indice):
+    def arguments(self, indice):    #
         if not self.existeToken(indice):
             Error.EsperaTokenFimArquivo(TipoToken.SepAbreParentese.name)
             return indice
@@ -551,6 +548,9 @@ class analisadorSintatico:
             Error.RecebeuTokenInesperado(TipoToken.SepAbreParentese.name, self.tokens[indice])
             return indice
         indice += 1
+        if not self.existeToken(indice):
+            Error.EsperaTokenFimArquivo(TipoToken.SepFechaParentese.name)
+            return indice
         if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
             indice = self.expression(indice)
             if not self.existeToken(indice):
@@ -562,9 +562,7 @@ class analisadorSintatico:
                 if not self.existeToken(indice):
                     Error.EsperaTokenFimArquivo(TipoToken.SepVirgula.name)
                     return indice
-        if not self.tokens[indice] == TipoToken.SepFechaParentese.name:
-            Error.RecebeuTokenInesperado(TipoToken.SepFechaParentese.name, self.tokens[indice])
-            return indice
+
         indice += 1
         return indice
 
