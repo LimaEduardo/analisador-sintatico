@@ -1,5 +1,5 @@
 import inspect 
-debug = False
+debug = True
 
 def debugFunction(*args):
     argsExists = False
@@ -7,7 +7,7 @@ def debugFunction(*args):
         argsExists = True
     if argsExists and args[0][0] == True:
         print("------------------------------------")
-        print ('Chamado pelo método:', inspect.stack()[2][3])
+        print ('Chamado pelo metodo:', inspect.stack()[2][3])
         print ('Chamado na linha:', inspect.stack()[2][2])
         print ('Chamado do arquivo:', inspect.stack()[2][1])
         print("____________________________________\n")
@@ -15,7 +15,7 @@ def debugFunction(*args):
         return
     elif debug:
         print("------------------------------------")
-        print ('Chamado pelo método:', inspect.stack()[2][3])
+        print ('Chamado pelo metodo:', inspect.stack()[2][3])
         print ('Chamado na linha:', inspect.stack()[2][2])
         print ('Chamado do arquivo:', inspect.stack()[2][1])
         print("____________________________________\n")
@@ -44,7 +44,7 @@ class Error:
     @staticmethod
     def NaoFoiPossivelLerMaisToken(nomefuncao, *args):
         debugFunction(args)
-        print("Esperavamos um token na função "+nomefuncao+", porém terminou de forma inesperada")
+        print("Esperavamos um token na funcao "+nomefuncao+", porem terminou de forma inesperada")
         endDebugFunction(args)
     
     @staticmethod
