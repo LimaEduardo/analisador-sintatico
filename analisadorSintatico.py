@@ -585,7 +585,7 @@ class analisadorSintatico:
             Error.EsperaTokenFimArquivo(self.infoTokens[indice],[TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name])
             return indice
         if not self.ehUmBasicType(indice):
-            Error.EsperaTokenFimArquivo(self.infoTokens[indice],[TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name])
+            Error.RecebeuTokenInesperado(self.infoTokens[indice],[TipoToken.PCBoolean.name, TipoToken.PCChar.name, TipoToken.PCInt.name], self.tokens[indice])
             return indice
         indice += 1
         return indice

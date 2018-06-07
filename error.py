@@ -10,7 +10,6 @@ def debugFunction(*args):
         print ('Chamado pelo metodo:', inspect.stack()[2][3])
         print ('Chamado na linha:', inspect.stack()[2][2])
         print ('Chamado do arquivo:', inspect.stack()[2][1])
-        print ('Pilha', inspect.stack())
         print("____________________________________\n")
     elif argsExists and args[0][0] == False:
         return
@@ -19,7 +18,6 @@ def debugFunction(*args):
         print ('Chamado pelo metodo:', inspect.stack()[2][3])
         print ('Chamado na linha:', inspect.stack()[2][2])
         print ('Chamado do arquivo:', inspect.stack()[2][1])
-        print ('Pilha', inspect.stack())
         print("____________________________________\n")
 
 def endDebugFunction(*args):
