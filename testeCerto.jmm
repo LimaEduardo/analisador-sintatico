@@ -1,0 +1,7 @@
+package carro;
+import camaro;
+
+public static class bamblebee extends camaro{
+    private int i = 0;
+	public char x;
+}
