@@ -1,5 +1,5 @@
 import inspect 
-debug = True
+debug = False
 
 def debugFunction(*args):
     argsExists = False
