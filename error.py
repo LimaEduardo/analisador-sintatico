@@ -39,20 +39,20 @@ class Error:
     def EsperaTokenFimArquivo(infoToken,token, *args):
         debugFunction(args)
         print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
-        print("Esperava o token: '"+str(token)+"' e recebeu um fim de arquivo")
+        print("Esperava o token: '"+str(token)+"' e recebeu um fim de arquivo\n")
         endDebugFunction(args)
     
     @staticmethod
     def NaoFoiPossivelLerMaisToken(infoToken,nomefuncao, *args):
         debugFunction(args)
         print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
-        print("Esperavamos um token na funcao "+ str(nomefuncao) +", porem terminou de forma inesperada")
+        print("Esperavamos um token na funcao "+ str(nomefuncao) +", porem terminou de forma inesperada\n")
         endDebugFunction(args)
     
     @staticmethod
     def RecebeuTokenInesperado(infoToken,tokenEsperado, tokenRecebido, *args):
         debugFunction(args)
         print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
-        print("Esperava o token:'" +str(tokenEsperado)+ "' e recebeu um '"+str(tokenRecebido)+"'")
+        print("Esperava o token:'" +str(tokenEsperado)+ "' e recebeu um '"+str(tokenRecebido)+"'\n")
         endDebugFunction(args)
     

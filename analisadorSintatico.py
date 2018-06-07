@@ -12,8 +12,6 @@ class analisadorSintatico:
         
 
     def existeToken(self, i):
-        if i < len(self.tokens):
-            print(self.tokens[i])
         return i < len(self.tokens)
 
     #compilationUnit::=[package qualifiedIdentifier ;] {import qualifiedIdentifier ;} {typeDeclaration} EOF
