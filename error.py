@@ -38,20 +38,23 @@ def endDebugFunction(*args):
 class Error:
 
     @staticmethod
-    def EsperaTokenFimArquivo(token, *args):
+    def EsperaTokenFimArquivo(infoToken,token, *args):
         debugFunction(args)
+        print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
         print("Esperava o token: '"+str(token)+"' e recebeu um fim de arquivo")
         endDebugFunction(args)
     
     @staticmethod
-    def NaoFoiPossivelLerMaisToken(nomefuncao, *args):
+    def NaoFoiPossivelLerMaisToken(infoToken,nomefuncao, *args):
         debugFunction(args)
+        print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
         print("Esperavamos um token na funcao "+ str(nomefuncao) +", porem terminou de forma inesperada")
         endDebugFunction(args)
     
     @staticmethod
-    def RecebeuTokenInesperado(tokenEsperado, tokenRecebido, *args):
+    def RecebeuTokenInesperado(infoToken,tokenEsperado, tokenRecebido, *args):
         debugFunction(args)
+        print("Erro sintático na linha "+infoToken[1]+" e na coluna "+infoToken[2])
         print("Esperava o token:'" +str(tokenEsperado)+ "' e recebeu um '"+str(tokenRecebido)+"'")
         endDebugFunction(args)
     
